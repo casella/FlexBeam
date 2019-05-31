@@ -3,6 +3,7 @@ model FlexibleThinBeam "Flexible thin beam model"
   import SI = Modelica.SIunits;
   import Cv = Modelica.SIunits.Conversions;
   import Modelica.Math.*;
+  import Modelica.Mechanics.MultiBody.Frames;
 
   parameter SI.Density rho=7800 "Material Volume Density";
   parameter SI.Length L "Beam Length";
@@ -69,20 +70,33 @@ protected
   final parameter Real Ibar31[1, 6]=zeros(1, 6);
   final parameter Real Ibar32[1, 6]=zeros(1, 6);
   final parameter Real Ibar33[1, 6]=zeros(1, 6);
-  final parameter Real KffEl[6, 6]=E*[A/h, 0, 0, -A/h, 0, 0; 0, 12*J/h^3, 6*J/h
-      ^2, 0, -12*J/h^3, 6*J/h^2; 0, 6*J/h^2, 4*J/h, 0, -6*J/h^2, 2*J/h; -A/h, 0,
-      0, A/h, 0, 0; 0, -12*J/h^3, -6*J/h^2, 0, 12*J/h^3, -6*J/h^2; 0, 6*J/h^2,
-      2*J/h, 0, -6*J/h^2, 4*J/h];
-  final parameter Real S0[3, 6]=[1, 0, 0, 0, 0, 0; 0, 1, 0, 0, 0, 0; 0, 0, 0, 0,
-      0, 0];
-  final parameter Real dS0[3, 6]=[0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0; 0, 0, 1,
-      0, 0, 0];
-  final parameter Real S1[3, 6]=[0, 0, 0, 1, 0, 0; 0, 0, 0, 0, 1, 0; 0, 0, 0, 0,
-      0, 0];
-  final parameter Real S2[3, 6]=[0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 1, 0; 0, 0, 0, 0,
-      0, 0];
-  final parameter Real dS1[3, 6]=[0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0; 0, 0, 0,
-      0, 0, 1];
+  final parameter Real KffEl[6, 6]=
+    E*[A/h,  0,         0,       -A/h,  0,         0;
+       0,    12*J/h^3,  6*J/h^2,  0,   -12*J/h^3,  6*J/h^2;
+       0,    6*J/h^2,   4*J/h,    0,   -6*J/h^2,   2*J/h;
+      -A/h,  0,         0,        A/h,  0,         0;
+       0,   -12*J/h^3, -6*J/h^2,  0,    12*J/h^3, -6*J/h^2;
+       0,    6*J/h^2,   2*J/h,    0,   -6*J/h^2,   4*J/h];
+  final parameter Real S0[3, 6]=
+    [1, 0, 0, 0, 0, 0;
+     0, 1, 0, 0, 0, 0;
+     0, 0, 0, 0, 0, 0];
+  final parameter Real dS0[3, 6]=
+    [0, 0, 0, 0, 0, 0;
+     0, 0, 0, 0, 0, 0;
+     0, 0, 1, 0, 0, 0];
+  final parameter Real S1[3, 6]=
+    [0, 0, 0, 1, 0, 0;
+     0, 0, 0, 0, 1, 0;
+     0, 0, 0, 0, 0, 0];
+  final parameter Real S2[3, 6]=
+    [0, 0, 0, 0, 0, 0;
+     0, 0, 0, 0, 1, 0;
+     0, 0, 0, 0, 0, 0];
+  final parameter Real dS1[3, 6]=
+    [0, 0, 0, 0, 0, 0;
+     0, 0, 0, 0, 0, 0;
+     0, 0, 0, 0, 0, 1];
 
 public
   Real qf[3*N](start=qf_start) "Elastic coordinates";
@@ -170,37 +184,41 @@ equation
 
   //connectivity matrices
   if ClampedFree then
-    B[1, :, :] = [zeros(3, 3*N); identity(3), zeros(3, 3*(N - 1))];
-    B[N, :, :] = [zeros(6, 3*(N - 2)), identity(6)];
+    B[1,:,:] = [zeros(3, 3*N); identity(3), zeros(3, 3*(N - 1))];
+    B[N,:,:] = [zeros(6, 3*(N - 2)), identity(6)];
   else
-    B[1, :, :] = [zeros(2, 3*N); [zeros(1, 3*(N - 1)), [0, 1, 0]]; identity(3),
-      zeros(3, 3*(N - 1))];
-    B[N, :, :] = [zeros(3, 3*(N - 2)), identity(3), zeros(3, 3); zeros(3, 3*(N
-       - 2)), zeros(3, 3), [1, 0, 0; 0, 0, 0; 0, 0, 1]];
+    B[1,:,:] = [zeros(2, 3*N);
+                [zeros(1, 3*(N - 1)), [0, 1, 0]];
+                identity(3), zeros(3, 3*(N - 1))];
+    B[N,:,:] = [zeros(3, 3*(N - 2)), identity(3), zeros(3, 3);
+                zeros(3, 3*(N - 2)), zeros(3, 3), [1, 0, 0; 0, 0, 0; 0, 0, 1]];
   end if;
 
   for i in 2:N - 1 loop
-    B[i, :, :] = [zeros(6, 3*(i - 2)), identity(6), zeros(6, 3*(N - i))];
+    B[i,:,:] = [zeros(6, 3*(i - 2)), identity(6), zeros(6, 3*(N - i))];
   end for;
 
   //integral shape function matrices
-  Sbar = sum(SbarEl*B[i, :, :] for i in 1:N);
+  Sbar = sum(SbarEl*B[i,:,:] for i in 1:N);
 
   //rotation-deformation coupling
-  Ithf_bar = [zeros(2, 3*N); sum((Ibar12 + (i - 1)*Ibar12adj + transpose(matrix(
-    qf))*transpose(B[i, :, :])*(Sbar12 - Sbar21))*B[i, :, :] for i in 1:N)];
+  Ithf_bar =
+    [zeros(2, 3*N);
+     sum((Ibar12 + (i - 1)*Ibar12adj +
+      transpose(matrix(qf))*transpose(B[i,:,:])*(Sbar12 - Sbar21))*B[i,:,:]
+     for i in 1:N)];
 
   //mass structural matrix
-  mff = sum(transpose(B[i, :, :])*(Sbar11 + Sbar22)*B[i, :, :] for i in 1:N);
+  mff = sum(transpose(B[i,:,:])*(Sbar11 + Sbar22)*B[i,:,:] for i in 1:N);
 
   //Inertia matrix and derivative
 
-  Ithth_bar11 =1e-10+ scalar(transpose(matrix(qf))*sum((transpose(B[i, :, :])*Sbar22*
-    B[i, :, :]) for i in 1:N)*qf);
+  Ithth_bar11 =1e-10+
+   scalar(transpose(matrix(qf))*sum((transpose(B[i,:,:])*Sbar22*B[i,:,:]) for i in 1:N)*qf);
 
-  Ithth_bar22 = m*L^2/3 + scalar(2*sum((Ibar11 + (i - 1)*Ibar11adj)*B[i, :, :]
-    for i in 1:N)*qf + transpose(matrix(qf))*sum(transpose(B[i, :, :])*Sbar11*B[
-    i, :, :] for i in 1:N)*qf);
+  Ithth_bar22 = m*L^2/3 +
+    scalar(2*sum((Ibar11 + (i - 1)*Ibar11adj)*B[i,:,:] for i in 1:N)*qf +
+    transpose(matrix(qf))*sum(transpose(B[i, :, :])*Sbar11*B[i,:,:] for i in 1:N)*qf);
 
   Ithth_bar33 = Ithth_bar11 + Ithth_bar22;
 
@@ -208,36 +226,37 @@ equation
     N)*qf - transpose(matrix(qf))*sum(transpose(B[i, :, :])*Sbar21*B[i, :, :]
     for i in 1:N)*qf);
 
-  Ithth_bar = [Ithth_bar11, Ithth_bar12, 0; Ithth_bar12, Ithth_bar22, 0; 0, 0,
-    Ithth_bar33];
+  Ithth_bar = [Ithth_bar11, Ithth_bar12, 0;
+               Ithth_bar12, Ithth_bar22, 0;
+               0,           0,    Ithth_bar33];
 
-  Ithth_bar11_der = 2*scalar(transpose(matrix(qf))*sum((transpose(B[i, :, :])*
-    Sbar22*B[i, :, :]) for i in 1:N)*dqf);
+  Ithth_bar11_der =
+    2*scalar(transpose(matrix(qf))*sum((transpose(B[i,:,:])*Sbar22*B[i,:,:]) for i in 1:N)*dqf);
 
-  Ithth_bar22_der = scalar(2*sum((Ibar11 + (i - 1)*Ibar11adj)*B[i, :, :] for i in
-        1:N)*dqf + 2*transpose(matrix(qf))*sum(transpose(B[i, :, :])*Sbar11*B[i,
-    :, :] for i in 1:N)*dqf);
+  Ithth_bar22_der =
+    scalar(2*sum((Ibar11 + (i - 1)*Ibar11adj)*B[i,:,:] for i in 1:N)*dqf +
+    2*transpose(matrix(qf))*sum(transpose(B[i,:,:])*Sbar11*B[i,:,:] for i in 1:N)*dqf);
 
-  Ithth_bar12_der = scalar(-sum((Ibar12 + (i - 1)*Ibar12adj)*B[i, :, :] for i in
-        1:N)*dqf - 2*transpose(matrix(qf))*sum(transpose(B[i, :, :])*Sbar21*B[i,
-    :, :] for i in 1:N)*dqf);
+  Ithth_bar12_der =
+    scalar(-sum((Ibar12 + (i - 1)*Ibar12adj)*B[i,:,:] for i in 1:N)*dqf -
+           2*transpose(matrix(qf))*sum(transpose(B[i, :, :])*Sbar21*B[i,:,:] for i in 1:N)*dqf);
 
   Ithth_bar33_der = Ithth_bar11_der + Ithth_bar22_der;
 
-  Ithth_bar_der = [Ithth_bar11_der, Ithth_bar12_der, 0; Ithth_bar12_der,
-    Ithth_bar22_der, 0; 0, 0, Ithth_bar33_der];
+  Ithth_bar_der = [Ithth_bar11_der, Ithth_bar12_der,    0;
+                   Ithth_bar12_der, Ithth_bar22_der,    0;
+                   0,               0,           Ithth_bar33_der];
   //stiffness matrix
-  Kff = sum(transpose(B[i, :, :])*(KffEl)*B[i, :, :] for i in 1:N);
+  Kff = sum(transpose(B[i,:,:])*(KffEl)*B[i,:,:] for i in 1:N);
 
   /* Flange A quantities definitions */
-  g_0 = Modelica.Mechanics.MultiBody.Frames.resolve2(FrameA.R, world.gravityAcceleration(FrameA.
-    r_0 + Modelica.Mechanics.MultiBody.Frames.resolve1(FrameA.R, {L/2,0,0})));
+  g_0 = Frames.resolve2(FrameA.R, world.gravityAcceleration(FrameA.r_0 + Frames.resolve1(FrameA.R, {L/2,0,0})));
 
   ra = FrameA.r_0;
-  va = Modelica.Mechanics.MultiBody.Frames.resolve2(FrameA.R, der(FrameA.r_0));
-  wa = Modelica.Mechanics.MultiBody.Frames.angularVelocity2(FrameA.R);
+  va = Frames.resolve2(FrameA.R, der(FrameA.r_0));
+  wa = Frames.angularVelocity2(FrameA.R);
   v_0a = der(ra);
-  aa = Modelica.Mechanics.MultiBody.Frames.resolve2(FrameA.R, der(v_0a));
+  aa = Frames.resolve2(FrameA.R, der(v_0a));
   za = der(wa);
   fa = FrameA.f;
   ta = FrameA.t;
@@ -248,51 +267,47 @@ equation
   ddqf = der(dqf);
 
   QvR = matrix(-cross(wa, cross(wa, Stbar)) - 2*cross(wa, (Sbar*dqf)));
-  QvAlpha = matrix(-cross(wa, Ithth_bar*wa) - der(Ithth_bar)*wa - cross(wa, (
-    Ithf_bar*dqf)));
+  QvAlpha = matrix(-cross(wa, Ithth_bar*wa) - der(Ithth_bar)*wa - cross(wa, (Ithf_bar*dqf)));
   Stbar = {m*L/2,0,0} + Sbar*qf;
   StbarCross = skew(Stbar);
 
   wCross = skew(wa);
   wCross2 = wCross*wCross;
 
-  F = Sbar11*wCross2[1, 1] + Sbar12*wCross2[2, 1] + Sbar21*wCross2[1, 2] +
-    Sbar22*wCross2[2, 2];
+  F = Sbar11*wCross2[1, 1] + Sbar12*wCross2[2, 1] +
+      Sbar21*wCross2[1, 2] + Sbar22*wCross2[2, 2];
 
   H = -(Sbar12*wCross[2, 1] + Sbar21*wCross[1, 2]);
 
   Qvf = -sum((transpose(B[i, :, :])*(transpose([(Ibar11 + (i - 1)*Ibar11adj)*
     wCross2[1, 1] + (Ibar12 + (i - 1)*Ibar12adj)*wCross2[2, 1]]))) + matrix((
-    transpose(B[i, :, :])*F*B[i, :, :])*qf) + matrix(2*(transpose(B[i, :, :])*H
-    *B[i, :, :])*dqf) for i in 1:N);
+    transpose(B[i,:,:])*F*B[i,:,:])*qf) + matrix(2*(transpose(B[i,:,:])*H
+    *B[i,:,:])*dqf) for i in 1:N);
 
-  transpose(Qef) = (transpose(matrix(fb_a))*S1*B[N, :, :] + transpose(matrix(
-    tb_a))*dS1*B[N, :, :] + transpose(matrix(ta))*dS0*B[1, :, :]);
+  transpose(Qef) = (transpose(matrix(fb_a))*S1*B[N,:,:] +
+                    transpose(matrix(tb_a))*dS1*B[N,:,:] +
+                    transpose(matrix(ta))*dS0*B[1,:,:]);
 
   /* Dynamics equations */
-  [m*identity(3), transpose(StbarCross), Sbar]*[aa - g_0; za; ddqf] = QvR +
-    matrix(fa + fb_a);
+  [m*identity(3), transpose(StbarCross), Sbar]*[aa - g_0; za; ddqf] = QvR + matrix(fa + fb_a);
 
-  [StbarCross, Ithth_bar, Ithf_bar]*[aa - g_0; za; ddqf] = QvAlpha + matrix(ta
-     + tb_a + cross(({L,0,0} + S1*B[N, :, :]*qf), fb_a));
+  [StbarCross, Ithth_bar, Ithf_bar]*[aa - g_0; za; ddqf] =
+    QvAlpha + matrix(ta + tb_a + cross(({L,0,0} + S1*B[N,:,:]*qf), fb_a));
 
-  [transpose(Sbar), transpose(Ithf_bar), mff]*[aa - g_0; za; ddqf] = Qvf + Qef
-     - matrix(Kff*qf) - matrix((Alpha*mff + Beta*Kff)*dqf);
+  [transpose(Sbar), transpose(Ithf_bar), mff]*[aa - g_0; za; ddqf] =
+    Qvf + Qef - matrix(Kff*qf) - matrix((Alpha*mff + Beta*Kff)*dqf);
 
   /* Flange B quantities definitions */
   rb = FrameB.r_0;
   fb = FrameB.f;
   tb = FrameB.t;
-  fb_a = Modelica.Mechanics.MultiBody.Frames.resolve1(R_rel, fb);
-  tb_a = Modelica.Mechanics.MultiBody.Frames.resolve1(R_rel, tb);
-  rb = ra + Modelica.Mechanics.MultiBody.Frames.resolve1(FrameA.R, ({L,0,0} + S1*B[N, :, :]*qf));
-
-  FrameB.R = Modelica.Mechanics.MultiBody.Frames.absoluteRotation(FrameA.R, R_rel);
-
-  R_rel = Modelica.Mechanics.MultiBody.Frames.planarRotation({0,0,1}, qf[3*N], dqf[3*N]);
+  fb_a = Frames.resolve1(R_rel, fb);
+  tb_a = Frames.resolve1(R_rel, tb);
+  rb = ra + Frames.resolve1(FrameA.R, ({L,0,0} + S1*B[N, :, :]*qf));
+  FrameB.R = Frames.absoluteRotation(FrameA.R, R_rel);
+  R_rel = Frames.planarRotation({0,0,1}, qf[3*N], dqf[3*N]);
 
   /* 3D Visual Representation */
-
   r0shape[1, :] = {0,0,0};
   rrelshape[1, :] = r0shape[2, :];
   Lshape[1] = sqrt(rrelshape[1, :]*rrelshape[1, :]);
@@ -305,7 +320,6 @@ equation
     r0shape[i, :] = {L*(i - 1)/N,0,0} + S1*B[i - 1, :, :]*qf;
     rrelshape[i, :] = (r0shape[i + 1, :] - r0shape[i, :]);
     Lshape[i] = sqrt(rrelshape[i, :]*rrelshape[i, :]);
-
   end for;
 
   annotation (
