@@ -31,14 +31,14 @@ model FlexibleThinBeam "Flexible thin beam model"
     annotation(Dialog(tab="3D Graphics"));
   parameter SI.Area A "Cross sectional area";
   parameter SI.ModulusOfElasticity E "Material Youngs modulus";
-  parameter SI.SecondMomentOfArea J "Cross sectional inertia";
-  parameter Real Alpha=0
+  parameter SI.SecondMomentOfArea J "Moment of inertia of the beam cross section";
+  parameter Real Alpha(unit="1/s")=0
     "Rayleigh structural damping proportional to mass [sec^-1]";
-  parameter Real Beta=0
+  parameter Real Beta(unit="s")=0
     "Rayleigh structural damping proportional to stiffness [sec]";
-  parameter Integer N(min=1) = 5 "Number of Elements";
-  final parameter SI.Length h=L/N;
-  final parameter SI.Mass m=rho*L*A;
+  parameter Integer N(min=1) = 5 "Number of elements";
+  final parameter SI.Length h=L/N "Length of one element";
+  final parameter SI.Mass m=rho*L*A "Mass of the beam";
 protected
   constant Real pi=Modelica.Constants.pi;
   final parameter Real SbarEl[3, 6]=m/N/12*[6, 0, 0, 6, 0, 0; 0, 6, h, 0, 6, -h;
@@ -212,7 +212,6 @@ equation
   mff = sum(transpose(B[i,:,:])*(Sbar11 + Sbar22)*B[i,:,:] for i in 1:N);
 
   //Inertia matrix and derivative
-
   Ithth_bar11 =1e-10+
    scalar(transpose(matrix(qf))*sum((transpose(B[i,:,:])*Sbar22*B[i,:,:]) for i in 1:N)*qf);
 
@@ -246,6 +245,7 @@ equation
   Ithth_bar_der = [Ithth_bar11_der, Ithth_bar12_der,    0;
                    Ithth_bar12_der, Ithth_bar22_der,    0;
                    0,               0,           Ithth_bar33_der];
+
   //stiffness matrix
   Kff = sum(transpose(B[i,:,:])*(KffEl)*B[i,:,:] for i in 1:N);
 
@@ -262,7 +262,6 @@ equation
   ta = FrameA.t;
 
   /* Time-variant quantities */
-
   dqf = der(qf);
   ddqf = der(dqf);
 
@@ -289,7 +288,8 @@ equation
                     transpose(matrix(ta))*dS0*B[1,:,:]);
 
   /* Dynamics equations */
-  [m*identity(3), transpose(StbarCross), Sbar]*[aa - g_0; za; ddqf] = QvR + matrix(fa + fb_a);
+  [m*identity(3), transpose(StbarCross), Sbar]*[aa - g_0; za; ddqf] =
+    QvR + matrix(fa + fb_a);
 
   [StbarCross, Ithth_bar, Ithf_bar]*[aa - g_0; za; ddqf] =
     QvAlpha + matrix(ta + tb_a + cross(({L,0,0} + S1*B[N,:,:]*qf), fb_a));
