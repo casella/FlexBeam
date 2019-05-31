@@ -2,7 +2,7 @@ model FlexibleThinBeam "Flexible thin beam model"
 
   import SI = Modelica.SIunits;
   import Cv = Modelica.SIunits.Conversions;
-  import Modelica.Math.*;
+  //import Modelica.Math.*;
   import Modelica.Mechanics.MultiBody.Frames;
 
   parameter SI.Density rho=7800 "Material Volume Density";
@@ -178,7 +178,7 @@ protected
     each R=FrameA.R);
 
 equation
-  defineBranch(FrameA.R, FrameB.R);
+  Connections.branch(FrameA.R, FrameB.R);
   assert(cardinality(FrameA) > 0 or cardinality(FrameB) > 0,
     "Neither connector frame_a nor frame_b of FlexBeamFem object is connected");
 
