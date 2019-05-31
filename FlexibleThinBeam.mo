@@ -1,54 +1,45 @@
-model FlexibleThinBeam
+model FlexibleThinBeam "Flexible thin beam model"
 
   import SI = Modelica.SIunits;
   import Cv = Modelica.SIunits.Conversions;
   import Modelica.Math.*;
 
   parameter SI.Density rho=7800 "Material Volume Density";
-  parameter SI.Length L=1 "Beam Length";
+  parameter SI.Length L "Beam Length";
 
   parameter SI.Position r_0_start[3]={0,0,0}
-    "|Initialization|| Initial values of frame_a.r_0 (vector from origin of world frame to origin of frame_a resolved in world frame)"
-    annotation (Evaluate=false);
-
+    "Initial values of frame_a.r_0 (vector from origin of world frame to origin of frame_a resolved in world frame)"
+    annotation (Dialog(tab="Initialization"));
   parameter Real qf_start[3*N]=zeros(3*N)
-    "|Initialization||Initial beam deformation";
-
+    "Initial beam deformation"
+    annotation(Dialog(tab="Initialization"));
   parameter Real dqf_start[3*N]=zeros(3*N)
-    "|Initialization|| Initial velocity of beam deformation";
-
+    "Initial velocity of beam deformation"
+    annotation(Dialog(tab="Initialization"));
   parameter Real ddqf_start[3*N]=zeros(3*N)
-    "|Initialization|| Initial acceleration of beam deformation";
-
+    "Initial acceleration of beam deformation"
+    annotation(Dialog(tab="Initialization"));
   parameter Boolean ClampedFree=true
-    "|Boundary Conditions|| if true then Clamped-Free model, else simply-supported model ";
-
+    "Clamped-Free model if true, else simply-supported model"
+    annotation(Dialog(tab="Boundary Conditions"));
   parameter Boolean CircularSection=true
-    "|3D Graphics|| if true then CircularSection, else Rectangular ";
-
+    "CircularSection if true, else Rectangular"
+    annotation(Dialog(tab="3D Graphics"));
   parameter Modelica.Mechanics.MultiBody.Types.Color ColorBeam={128,128,128}
-    "|3D Graphics|| Beam color ";
-
+    "Beam color "
+    annotation(Dialog(tab="3D Graphics"));
   parameter SI.Area A "Cross sectional area";
-
   parameter SI.ModulusOfElasticity E "Material Youngs modulus";
-
   parameter SI.SecondMomentOfArea J "Cross sectional inertia";
-
- parameter Real Alpha=0
+  parameter Real Alpha=0
     "Rayleigh structural damping proportional to mass [sec^-1]";
-
   parameter Real Beta=0
     "Rayleigh structural damping proportional to stiffness [sec]";
-
   parameter Integer N(min=1) = 5 "Number of Elements";
-
   final parameter Real h=L/N;
 
   Real qf[3*N](start=qf_start) "Elastic coordinates";
-
   Real dqf[3*N](start=dqf_start) "Elastic velocities";
-
   Real ddqf[3*N](start=ddqf_start) "Elastic accelerations";
 
   final parameter SI.Mass m=rho*L*A;
