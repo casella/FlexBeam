@@ -36,134 +36,87 @@ model FlexibleThinBeam "Flexible thin beam model"
   parameter Real Beta=0
     "Rayleigh structural damping proportional to stiffness [sec]";
   parameter Integer N(min=1) = 5 "Number of Elements";
-  final parameter Real h=L/N;
-
-  Real qf[3*N](start=qf_start) "Elastic coordinates";
-  Real dqf[3*N](start=dqf_start) "Elastic velocities";
-  Real ddqf[3*N](start=ddqf_start) "Elastic accelerations";
-
+  final parameter SI.Length h=L/N;
   final parameter SI.Mass m=rho*L*A;
-
-  SI.Acceleration g_0[3] "Gravity acceleration resolved in world frame";
-
 protected
   constant Real pi=Modelica.Constants.pi;
-
-  Real B[N, 6, 3*N];
-
-  Real Stbar[3];
-
-  Real StbarCross[3, 3];
-
-  Real Ithth_bar[3, 3];
-
-  Real Ithth_bar11;
-
-  Real Ithth_bar22;
-
-  Real Ithth_bar33;
-
-  Real Ithth_bar12;
-
-  Real Ithth_bar_der[3, 3];
-
-  Real Ithth_bar11_der;
-
-  Real Ithth_bar22_der;
-
-  Real Ithth_bar33_der;
-
-  Real Ithth_bar12_der;
-
-  Real QvR[3, 1];
-
-  Real QvAlpha[3, 1];
-
-  Real wCross[3, 3];
-
-  Real wCross2[3, 3];
-
   final parameter Real SbarEl[3, 6]=m/N/12*[6, 0, 0, 6, 0, 0; 0, 6, h, 0, 6, -h;
       0, 0, 0, 0, 0, 0];
-  Real Sbar[3, 3*N];
-
-  Real Ithf_bar[3, 3*N];
-
-  Real mff[3*N, 3*N];
-
-  Real Kff[3*N, 3*N];
-
-  Real F[6, 6];
-  Real H[6, 6];
-
-  Real Qef[3*N, 1];
-
-  Real Qvf[3*N, 1];
-
   final parameter Real Sbar11[6, 6]=m/N*[1/3, 0, 0, 1/6, 0, 0; 0, 0, 0, 0, 0, 0;
       0, 0, 0, 0, 0, 0; 1/6, 0, 0, 1/3, 0, 0; 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0,
       0];
-
   final parameter Real Sbar12[6, 6]=transpose(Sbar21);
-
   final parameter Real Sbar13[6, 6]=zeros(6, 6);
-
   final parameter Real Sbar21[6, 6]=m/N*[0, 0, 0, 0, 0, 0; 7/20, 0, 0, 3/20, 0,
       0; 1/20*h, 0, 0, 1/30*h, 0, 0; 0, 0, 0, 0, 0, 0; 3/20, 0, 0, 7/20, 0, 0;
       -1/30*h, 0, 0, -1/20*h, 0, 0];
-
   final parameter Real Sbar22[6, 6]=m/N*[0, 0, 0, 0, 0, 0; 0, 13/35, 11/210*h,
       0, 9/70, -13/420*h; 0, 11/210*h, 1/105*h^2, 0, 13/420*h, -1/140*h^2; 0, 0,
       0, 0, 0, 0; 0, 9/70, 13/420*h, 0, 13/35, -11/210*h; 0, -13/420*h, -1/140*
       h^2, 0, -11/210*h, 1/105*h^2];
-
   final parameter Real Sbar23[6, 6]=zeros(6, 6);
-
   final parameter Real Sbar31[6, 6]=zeros(6, 6);
-
   final parameter Real Sbar32[6, 6]=zeros(6, 6);
-
   final parameter Real Sbar33[6, 6]=zeros(6, 6);
-
   final parameter Real Ibar11[1, 6]=h*m/N*[1/6, 0, 0, 1/3, 0, 0];
   final parameter Real Ibar11adj[1, 6]=h*m/N*[1/2, 0, 0, 1/2, 0, 0];
-
   final parameter Real Ibar12[1, 6]=h*m/N*[0, 3/20, 1/30*h, 0, 7/20, -1/20*h];
   final parameter Real Ibar12adj[1, 6]=h*m/N*[0, 1/2, 1/12*h, 0, 1/2, -1/12*h];
-
   final parameter Real Ibar13[1, 6]=zeros(1, 6);
-
   final parameter Real Ibar21[1, 6]=zeros(1, 6);
-
   final parameter Real Ibar22[1, 6]=zeros(1, 6);
-
   final parameter Real Ibar23[1, 6]=zeros(1, 6);
-
   final parameter Real Ibar31[1, 6]=zeros(1, 6);
-
   final parameter Real Ibar32[1, 6]=zeros(1, 6);
-
   final parameter Real Ibar33[1, 6]=zeros(1, 6);
-
   final parameter Real KffEl[6, 6]=E*[A/h, 0, 0, -A/h, 0, 0; 0, 12*J/h^3, 6*J/h
       ^2, 0, -12*J/h^3, 6*J/h^2; 0, 6*J/h^2, 4*J/h, 0, -6*J/h^2, 2*J/h; -A/h, 0,
       0, A/h, 0, 0; 0, -12*J/h^3, -6*J/h^2, 0, 12*J/h^3, -6*J/h^2; 0, 6*J/h^2,
       2*J/h, 0, -6*J/h^2, 4*J/h];
-
   final parameter Real S0[3, 6]=[1, 0, 0, 0, 0, 0; 0, 1, 0, 0, 0, 0; 0, 0, 0, 0,
       0, 0];
-
   final parameter Real dS0[3, 6]=[0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0; 0, 0, 1,
       0, 0, 0];
-
   final parameter Real S1[3, 6]=[0, 0, 0, 1, 0, 0; 0, 0, 0, 0, 1, 0; 0, 0, 0, 0,
       0, 0];
-
   final parameter Real S2[3, 6]=[0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 1, 0; 0, 0, 0, 0,
       0, 0];
-
   final parameter Real dS1[3, 6]=[0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0; 0, 0, 0,
       0, 0, 1];
+
+public
+  Real qf[3*N](start=qf_start) "Elastic coordinates";
+  Real dqf[3*N](start=dqf_start) "Elastic velocities";
+  Real ddqf[3*N](start=ddqf_start) "Elastic accelerations";
+  SI.Acceleration g_0[3] "Gravity acceleration resolved in world frame";
+
+protected
+  Real B[N, 6, 3*N];
+  Real Stbar[3];
+  Real StbarCross[3, 3];
+  Real Ithth_bar[3, 3];
+  Real Ithth_bar11;
+  Real Ithth_bar22;
+  Real Ithth_bar33;
+  Real Ithth_bar12;
+  Real Ithth_bar_der[3, 3];
+  Real Ithth_bar11_der;
+  Real Ithth_bar22_der;
+  Real Ithth_bar33_der;
+  Real Ithth_bar12_der;
+  Real QvR[3, 1];
+  Real QvAlpha[3, 1];
+  Real wCross[3, 3];
+  Real wCross2[3, 3];
+  Real Sbar[3, 3*N];
+  Real Ithf_bar[3, 3*N];
+  Real mff[3*N, 3*N];
+  Real Kff[3*N, 3*N];
+  Real F[6, 6];
+  Real H[6, 6];
+  Real Qef[3*N, 1];
+  Real Qvf[3*N, 1];
+
 
   Real ra[3];
   Real va[3];
@@ -186,6 +139,17 @@ protected
   vec3D rrelshape[N];
   Real Lshape[N];
 
+public
+  Modelica.Mechanics.MultiBody.Interfaces.Frame_a FrameA annotation (Placement(transformation(
+          extent={{-106,-8},{-86,12}}, rotation=0), iconTransformation(extent={{
+            -108,-10},{-86,12}})));
+  Modelica.Mechanics.MultiBody.Interfaces.Frame_b FrameB annotation (Placement(transformation(
+          extent={{88,-8},{108,12}}, rotation=0), iconTransformation(extent={{86,
+            -10},{108,12}})));
+
+protected
+  Modelica.Mechanics.MultiBody.Frames.Orientation R_rel;
+  outer Modelica.Mechanics.MultiBody.World world;
   Modelica.Mechanics.MultiBody.Visualizers.Advanced.Shape Segment[N](
     r_shape=r0shape,
     length=Lshape,
@@ -198,18 +162,6 @@ protected
     each extra=0.0,
     each r=FrameA.r_0,
     each R=FrameA.R);
-
-public
-  Modelica.Mechanics.MultiBody.Interfaces.Frame_a FrameA annotation (Placement(transformation(
-          extent={{-106,-8},{-86,12}}, rotation=0), iconTransformation(extent={{
-            -108,-10},{-86,12}})));
-  Modelica.Mechanics.MultiBody.Interfaces.Frame_b FrameB annotation (Placement(transformation(
-          extent={{88,-8},{108,12}}, rotation=0), iconTransformation(extent={{86,
-            -10},{108,12}})));
-
-protected
-  Modelica.Mechanics.MultiBody.Frames.Orientation R_rel;
-  outer Modelica.Mechanics.MultiBody.World world;
 
 equation
   defineBranch(FrameA.R, FrameB.R);
