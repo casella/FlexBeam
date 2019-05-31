@@ -1,12 +1,10 @@
 model FlexibleThinBeam "Flexible thin beam model"
-
   import SI = Modelica.SIunits;
   import Cv = Modelica.SIunits.Conversions;
-  //import Modelica.Math.*;
   import Modelica.Mechanics.MultiBody.Frames;
 
-  parameter SI.Density rho=7800 "Material Volume Density";
-  parameter SI.Length L "Beam Length";
+  parameter SI.Density rho=7800 "Material density";
+  parameter SI.Length L "Beam length";
 
   parameter SI.Position r_0_start[3]={0,0,0}
     "Initial values of frame_a.r_0 (vector from origin of world frame to origin of frame_a resolved in world frame)"
@@ -30,7 +28,7 @@ model FlexibleThinBeam "Flexible thin beam model"
     "Beam color "
     annotation(Dialog(tab="3D Graphics"));
   parameter SI.Area A "Cross sectional area";
-  parameter SI.ModulusOfElasticity E "Material Youngs modulus";
+  parameter SI.ModulusOfElasticity E "Young modulus of the beam material";
   parameter SI.SecondMomentOfArea J "Moment of inertia of the beam cross section";
   parameter Real Alpha(unit="1/s")=0
     "Rayleigh structural damping proportional to mass [sec^-1]";
@@ -41,35 +39,48 @@ model FlexibleThinBeam "Flexible thin beam model"
   final parameter SI.Mass m=rho*L*A "Mass of the beam";
 protected
   constant Real pi=Modelica.Constants.pi;
-  final parameter Real SbarEl[3, 6]=m/N/12*[6, 0, 0, 6, 0, 0; 0, 6, h, 0, 6, -h;
-      0, 0, 0, 0, 0, 0];
-  final parameter Real Sbar11[6, 6]=m/N*[1/3, 0, 0, 1/6, 0, 0; 0, 0, 0, 0, 0, 0;
-      0, 0, 0, 0, 0, 0; 1/6, 0, 0, 1/3, 0, 0; 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0,
-      0];
+  final parameter Real SbarEl[3, 6]=
+    m/N/12*[6, 0, 0, 6, 0,  0;
+            0, 6, h, 0, 6, -h;
+            0, 0, 0, 0, 0,  0];
+  final parameter Real Sbar11[6, 6]=
+    m/N*[1/3, 0, 0, 1/6, 0, 0;
+           0, 0, 0,   0, 0, 0;
+           0, 0, 0,   0, 0, 0;
+         1/6, 0, 0, 1/3, 0, 0;
+           0, 0, 0,   0, 0, 0;
+           0, 0, 0,   0, 0, 0];
   final parameter Real Sbar12[6, 6]=transpose(Sbar21);
   final parameter Real Sbar13[6, 6]=zeros(6, 6);
-  final parameter Real Sbar21[6, 6]=m/N*[0, 0, 0, 0, 0, 0; 7/20, 0, 0, 3/20, 0,
-      0; 1/20*h, 0, 0, 1/30*h, 0, 0; 0, 0, 0, 0, 0, 0; 3/20, 0, 0, 7/20, 0, 0;
-      -1/30*h, 0, 0, -1/20*h, 0, 0];
-  final parameter Real Sbar22[6, 6]=m/N*[0, 0, 0, 0, 0, 0; 0, 13/35, 11/210*h,
-      0, 9/70, -13/420*h; 0, 11/210*h, 1/105*h^2, 0, 13/420*h, -1/140*h^2; 0, 0,
-      0, 0, 0, 0; 0, 9/70, 13/420*h, 0, 13/35, -11/210*h; 0, -13/420*h, -1/140*
-      h^2, 0, -11/210*h, 1/105*h^2];
-  final parameter Real Sbar23[6, 6]=zeros(6, 6);
-  final parameter Real Sbar31[6, 6]=zeros(6, 6);
-  final parameter Real Sbar32[6, 6]=zeros(6, 6);
-  final parameter Real Sbar33[6, 6]=zeros(6, 6);
-  final parameter Real Ibar11[1, 6]=h*m/N*[1/6, 0, 0, 1/3, 0, 0];
-  final parameter Real Ibar11adj[1, 6]=h*m/N*[1/2, 0, 0, 1/2, 0, 0];
-  final parameter Real Ibar12[1, 6]=h*m/N*[0, 3/20, 1/30*h, 0, 7/20, -1/20*h];
-  final parameter Real Ibar12adj[1, 6]=h*m/N*[0, 1/2, 1/12*h, 0, 1/2, -1/12*h];
-  final parameter Real Ibar13[1, 6]=zeros(1, 6);
-  final parameter Real Ibar21[1, 6]=zeros(1, 6);
-  final parameter Real Ibar22[1, 6]=zeros(1, 6);
-  final parameter Real Ibar23[1, 6]=zeros(1, 6);
-  final parameter Real Ibar31[1, 6]=zeros(1, 6);
-  final parameter Real Ibar32[1, 6]=zeros(1, 6);
-  final parameter Real Ibar33[1, 6]=zeros(1, 6);
+  final parameter Real Sbar21[6, 6]=
+    m/N*[   0, 0, 0,      0, 0, 0;
+         7/20, 0, 0,   3/20, 0, 0;
+       1/20*h, 0, 0, 1/30*h, 0, 0;
+            0, 0, 0,      0, 0, 0;
+         3/20, 0, 0,   7/20, 0, 0;
+      -1/30*h, 0, 0,-1/20*h, 0, 0];
+  final parameter Real Sbar22[6, 6]=
+    m/N*[0,         0,          0, 0,         0,         0;
+         0,     13/35,   11/210*h, 0,      9/70, -13/420*h;
+         0,  11/210*h,  1/105*h^2, 0,  13/420*h,-1/140*h^2;
+         0,         0,          0, 0,         0,         0;
+         0,      9/70,   13/420*h, 0,     13/35, -11/210*h;
+         0, -13/420*h, -1/140*h^2, 0, -11/210*h, 1/105*h^2];
+  final parameter Real Sbar23[6,6]=zeros(6, 6);
+  final parameter Real Sbar31[6,6]=zeros(6, 6);
+  final parameter Real Sbar32[6,6]=zeros(6, 6);
+  final parameter Real Sbar33[6,6]=zeros(6, 6);
+  final parameter Real Ibar11[1,6] =  h*m/N*[1/6, 0, 0, 1/3, 0, 0];
+  final parameter Real Ibar11adj[1,6]=h*m/N*[1/2, 0, 0, 1/2, 0, 0];
+  final parameter Real Ibar12[1,6] =  h*m/N*[0, 3/20, 1/30*h, 0, 7/20, -1/20*h];
+  final parameter Real Ibar12adj[1,6]=h*m/N*[0,  1/2, 1/12*h, 0,  1/2, -1/12*h];
+  final parameter Real Ibar13[1,6]=zeros(1, 6);
+  final parameter Real Ibar21[1,6]=zeros(1, 6);
+  final parameter Real Ibar22[1,6]=zeros(1, 6);
+  final parameter Real Ibar23[1,6]=zeros(1, 6);
+  final parameter Real Ibar31[1,6]=zeros(1, 6);
+  final parameter Real Ibar32[1,6]=zeros(1, 6);
+  final parameter Real Ibar33[1,6]=zeros(1, 6);
   final parameter Real KffEl[6, 6]=
     E*[A/h,  0,         0,       -A/h,  0,         0;
        0,    12*J/h^3,  6*J/h^2,  0,   -12*J/h^3,  6*J/h^2;
