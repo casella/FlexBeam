@@ -1,3 +1,4 @@
+within Flex.Examples;
 model FlexiblePendulum
   inner Modelica.Mechanics.MultiBody.World world(animateGravity=false, animateWorld=false)
                               annotation (Placement(transformation(extent={{-64,

@@ -1,3 +1,4 @@
+within Flex;
 model FlexibleThinBeam "Flexible thin beam model"
   import SI = Modelica.SIunits;
   import Cv = Modelica.SIunits.Conversions;

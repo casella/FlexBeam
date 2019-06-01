@@ -1,3 +1,4 @@
+within Flex.Examples;
 model CartFlexibleBeam
  parameter Modelica.SIunits.Length L=2;
   parameter Real lato=0.01;
