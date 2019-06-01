@@ -32,9 +32,9 @@ model FlexibleThinBeam "Flexible thin beam model"
   parameter SI.ModulusOfElasticity E "Young modulus of the beam material";
   parameter SI.SecondMomentOfArea J "Second moment of area of cross section around z-axis";
   parameter Integer N(min=1) = 5 "Number of elements";
-  parameter SI.PerUnit csi1 = 0 "Desired damping coefficient at frequency w1"
+  parameter SI.PerUnit csi1 = 0 "Desired damping coefficient at frequency omega1"
     annotation(Dialog(group="Damping"));
-  parameter SI.PerUnit csi2 = 0 "Desired damping coefficient at frequency w2"
+  parameter SI.PerUnit csi2 = 0 "Desired damping coefficient at frequency omega2"
       annotation(Dialog(group="Damping"));
   parameter SI.AngularFrequency omega1 = 10 "Angular frequency 1"
     annotation(Dialog(group="Damping"));
