@@ -117,6 +117,7 @@ protected
     [0, 0, 0, 0, 0, 0;
      0, 0, 0, 0, 0, 0;
      0, 0, 0, 0, 0, 1];
+  type vec3D = SI.Position[3];
 
 public
   Real qf[3*N](start=qf_start) "Elastic coordinates";
@@ -125,7 +126,6 @@ public
   SI.Acceleration g_0[3] "Gravity acceleration resolved in world frame";
 
   /* 3D graphics variables */
-  type vec3D = SI.Position[3];
   vec3D r0shape[N] "Position of left boundary of finite elements resolved in frame_a";
   vec3D rrelshape[N] "Left boundary position - Right boundary position vector resolved in frame_a";
   Real Lshape[N] "Length of each finite volume";
