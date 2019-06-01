@@ -147,7 +147,8 @@ with a negative exponential time law.</p>
 Fig. 7 and 9 of [1], that were obtained with a different finite element multibody code, thus confirming
 the correctness of the flexible beam model.</p>
 
-<p>References</p>
+<h3>References</h3>
+<p>
 [1] J.L. Escalona, H. A. Hussien and A. A. Shabana, Application of the absolute nodal coordinate formulation
 to multibody systems dynamics, Journal of Sound and Vibration, 214(5), 1998, pp. 833-851,
 <a href=\"https://doi.org/10.1006/jsvi.1998.1563\">DOI:10.1006/jsvi.1998.1563</a>.<br>
@@ -157,6 +158,6 @@ Proc. 4th International Modelica Conference, Hamburg, 2005, pp. 25-34,
 <a href=\"https://modelica.org/events/Conference2005/online_proceedings/Session1/Session1a2.pdf\">online</a>.<br>
 [3] F. Schiavo, L. Vigan&ograve;, G. Ferretti, Object-oriented modelling of flexible beams, 
 Multibody Systems Dynamics, vol.5, n. 3, 2006, pp. 263-286, <a href=\"https://doi.org/10.1007/s11044-006-9012-8\">
-DOI:10.1007/s11044-006-9012-8</a>.
+DOI:10.1007/s11044-006-9012-8</a>.</p>
 </html>"));
 end SliderCrank;

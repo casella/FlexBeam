@@ -30,10 +30,10 @@ model FlexibleThinBeam "Flexible thin beam model"
     annotation(Dialog(tab="3D Graphics"));
   parameter SI.Area A "Cross sectional area";
   parameter SI.ModulusOfElasticity E "Young modulus of the beam material";
-  parameter SI.SecondMomentOfArea J "Moment of inertia of the beam cross section";
-  parameter Real Alpha(unit="1/s")=0
+  parameter SI.SecondMomentOfArea J "Second moment of area of cross section around z-axis";
+  parameter Real alpha(unit="1/s")=0
     "Rayleigh structural damping proportional to mass [sec^-1]";
-  parameter Real Beta(unit="s")=0
+  parameter Real beta(unit="s")=0
     "Rayleigh structural damping proportional to stiffness [sec]";
   parameter Integer N(min=1) = 5 "Number of elements";
   final parameter SI.Length h=L/N "Length of one element";
@@ -307,7 +307,7 @@ equation
     QvAlpha + matrix(ta + tb_a + cross(({L,0,0} + S1*B[N,:,:]*qf), fb_a));
 
   [transpose(Sbar), transpose(Ithf_bar), mff]*[aa - g_0; za; ddqf] =
-    Qvf + Qef - matrix(Kff*qf) - matrix((Alpha*mff + Beta*Kff)*dqf);
+    Qvf + Qef - matrix(Kff*qf) - matrix((alpha*mff + beta*Kff)*dqf);
 
   /* Flange B quantities definitions */
   rb = FrameB.r_0;
@@ -351,5 +351,43 @@ equation
           lineColor={135,135,135},
           fillColor={135,135,135},
           fillPattern=FillPattern.Solid)}),
-    uses(Modelica(version="3.2.2")));
+    uses(Modelica(version="3.2.2")),
+    Documentation(info="<html>
+<p>Flexible beam model compatible with the MultiBody library. The beam model is based on
+<a href=\"https://en.wikipedia.org/wiki/Euler%E2%80%93Bernoulli_beam_theory\">Euler-Bernoulli theory</a>, 
+accounting for planar deformation on the x-y plane, including compression and bending, and neglecting the effect
+of shear stress in the formulation of the dynamic equations. The beam is infinitely rigid with respect to 
+out-of-plane deformation and torsional deformation. It is thus suitable to model thin beams subject
+to forces and torques that mainly cause x-y plane deformation.</p>
+<p>The required data are the material properties, the beam length and cros section, and the second moment of area
+<code>J</code> of the beam cross section around the z-axis. For a rectangular beam with thickness <code>h</code> (in the y-axis
+direction) and width <code>h</code> (in the z-axis direction), <code>J = b*h^3/12</code>. Here is a 
+<a href=\"https://en.wikipedia.org/wiki/List_of_second_moments_of_area\">list of moments of area for other shapes</a>.</p>
+<p>The Euler-Bernoulli PDEs are discretized into <code>N</code> elements by the Finite Element Method, 
+assuming small deformations in the x-y plane. The beam position is thus determined by the position and rotation of the reference
+frame <code>frame_a</code>, to which a small deformation described by the elastic coordinates <code>qf</code>, by means of suitable
+shape functions, is superimposed. More specifically, the left boundary of the first element is rigidly attached to <code>frame_a</code>,
+and then the right boundary of each i-th element has a displacement in the x-direction proportional to <code>q[1+(i-1)*3]</code>,
+a displacement in the y-direction proportional to <code>q[(2+(i-1)*3]</code>, and a rotation around the z-axis proportional
+to <code>q[(3+(i-1)*3]</code>. The displacement of the right boundary of each element with respect to the rigid-body configuration,
+resolved in the frame_a reference, is available in the vector <code>r0shape</code>, and used for visualization.</p>
+<p>The shape of the basis functions that describe the beam deformation can be chosen between the clamped-free and the simply supported
+configuration. In general, it is possible to connect the two frame connectors at the beam boundary to any other rigid or flexible body connector;
+the dynamic behaviour due to flexibility will be better approximated by increasing the number of elements <code>N</code>. However,
+an appropriate choice of the basis shape function allows to obtain a better approximation of the exact motion with a lower number of
+elements.</p>
+<p>The flexible beam model is built on the assumption that the elastic deformations are small, allowing to describe them by linear equations.
+However, it is possible to represent large deformations correctly by connecting several beam models in series, as demonstrated in the
+<a href=\"modelica://Flex.Examples.LargeDeformation\">LargeDeformation</a> example case.</p>
+<h3>References</h3>
+<p>
+[1] F. Schiavo, G. Ferretti, L. Vigan&ograve;, Object-Oriented Modelling and Simulation of 
+Flexible Multibody Thin Beams in Modelica with the Finite Element Method, 
+Proc. 4th International Modelica Conference, Hamburg, 2005, pp. 25-34,
+<a href=\"https://modelica.org/events/Conference2005/online_proceedings/Session1/Session1a2.pdf\">online</a>.<br>
+[2] F. Schiavo, L. Vigan&ograve;, G. Ferretti, Object-oriented modelling of flexible beams, 
+Multibody Systems Dynamics, vol.5, n. 3, 2006, pp. 263-286, <a href=\"https://doi.org/10.1007/s11044-006-9012-8\">
+DOI:10.1007/s11044-006-9012-8</a>.
+</p>
+</html>"));
 end FlexibleThinBeam;
