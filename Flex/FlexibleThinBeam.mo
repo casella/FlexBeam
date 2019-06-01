@@ -31,11 +31,19 @@ model FlexibleThinBeam "Flexible thin beam model"
   parameter SI.Area A "Cross sectional area";
   parameter SI.ModulusOfElasticity E "Young modulus of the beam material";
   parameter SI.SecondMomentOfArea J "Second moment of area of cross section around z-axis";
-  parameter Real alpha(unit="1/s")=0
-    "Rayleigh structural damping proportional to mass [sec^-1]";
-  parameter Real beta(unit="s")=0
-    "Rayleigh structural damping proportional to stiffness [sec]";
   parameter Integer N(min=1) = 5 "Number of elements";
+  parameter SI.PerUnit csi1 = 0 "Desired damping coefficient at frequency w1"
+    annotation(Dialog(group="Damping"));
+  parameter SI.PerUnit csi2 = 0 "Desired damping coefficient at frequency w2"
+      annotation(Dialog(group="Damping"));
+  parameter SI.AngularFrequency omega1 = 10 "Angular frequency 1"
+    annotation(Dialog(group="Damping"));
+  parameter SI.AngularFrequency omega2 = 100 "Angular frequency 2"
+    annotation(Dialog(group="Damping"));
+  final parameter SI.DampingCoefficient alpha(fixed = false)
+    "Rayleigh structural damping proportional to mass";
+  final parameter SI.Time beta(fixed = false)
+    "Rayleigh structural damping proportional to stiffness";
   final parameter SI.Length h=L/N "Length of one element";
   final parameter SI.Mass m=rho*L*A "Mass of the beam";
 protected
@@ -189,6 +197,10 @@ protected
     each r=frame_a.r_0,
     each R=frame_a.R);
 
+initial equation
+   // initial equations to determine the Rayleigh damping coefficients alpha and beta
+   csi1 = 1/2*(alpha/omega1 + beta*omega1);
+   csi2 = 1/2*(alpha/omega2 + beta*omega2);
 equation
   Connections.branch(frame_a.R, frame_b.R);
   assert(cardinality(frame_a) > 0 or cardinality(frame_b) > 0, "Neither connector frame_a nor frame_b of FlexBeamFem object is connected");
@@ -376,6 +388,20 @@ configuration. In general, it is possible to connect the two frame connectors at
 the dynamic behaviour due to flexibility will be better approximated by increasing the number of elements <code>N</code>. However,
 an appropriate choice of the basis shape function allows to obtain a better approximation of the exact motion with a lower number of
 elements.</p>
+<p>The application of the FEM method to the Euler-Bernoulli PDEs allows to compute the mass and stiffness matrices of the model, which has
+no inherent damping. As a consequence, high-frequency vibration modes will be poorly damped, with eigenvalues very close to the imaginary
+axis. This can seriously slow down the simulation if variable step-size algorithms with error control are used, particularly if
+methods such as BDF algorithms (e.g. DASSL, IDA) are used, whose stability boundary poorly matches the imaginary axis.</p>
+<p>To avoid this problem, it may then be useful to introduce some structural damping in the model.
+Unfortunately, this can only be done empirically, by fitting the damping coefficient of some vibration modes of the system. The flexible
+beam model allows to do so using Rayleigh damping, whereby the damping matrix is a linear combination of the mass and stiffness matrices
+with coefficients <code>alpha</code> and <code>beta</code>. The coefficients are computed to obtain the desired damping coefficients 
+<code>csi1</code> and <code>csi2</code> at the angular frequencies <code>omega1</code> and <code>omega2</code>; 
+damping will be higher outside this interval, and slighly lower within this interval.
+The recommended way to use this feature is to first run a simulation with the default zero damping coefficients, 
+identify the angular frequency of the two most important vibration modes, and then set reasonable damping coefficients at their angular
+frequency values. Note that a poor choice of these damping parameters could lead to over-damped, non-physical behaviour of the beam, so it is essential to choose them
+carefully.</p>
 <p>The flexible beam model is built on the assumption that the elastic deformations are small, allowing to describe them by linear equations.
 However, it is possible to represent large deformations correctly by connecting several beam models in series, as demonstrated in the
 <a href=\"modelica://Flex.Examples.LargeDeformation\">LargeDeformation</a> example case.</p>

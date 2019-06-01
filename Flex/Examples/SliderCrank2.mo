@@ -1,10 +1,8 @@
 within Flex.Examples;
 model SliderCrank2
-  extends SliderCrank(torque(y=if time < 0.7 then 0.01*(1-exp(-time/0.167)) else
-                                                                                0));
+  extends SliderCrank(
+    torque(y=if time < 0.7 then 0.01*(1-exp(-time/0.167)) else 0));
   annotation (
-    Icon(coordinateSystem(preserveAspectRatio=false)),
-    Diagram(coordinateSystem(preserveAspectRatio=false)),
     Documentation(info="<html>
 <p>Same as <a href=\"modelica://Flex.Examples.SliderCrank\">SliderCrank</a>, except that the applied torque is 
 set to zero for time > 0.7.</p>
@@ -17,5 +15,8 @@ the correctness of the flexible beam model.</p>
 to multibody systems dynamics, Journal of Sound and Vibration, 214(5), 1998, pp. 833-851,
 <a href=\"https://doi.org/10.1006/jsvi.1998.1563\">DOI:10.1006/jsvi.1998.1563</a>.</p>
 </html>"),
-    experiment(StopTime=1.6, __Dymola_NumberOfIntervals=2000));
+    experiment(
+      StopTime=1.6,
+      Interval=4e-4,
+      __Dymola_Algorithm="Radau"));
 end SliderCrank2;

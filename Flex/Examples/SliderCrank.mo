@@ -36,7 +36,12 @@ model SliderCrank
     ClampedFree=false,
     E=5e7,
     N=8,
-    L=0.304) annotation (Placement(transformation(extent={{34,20},{54,40}},
+    L=0.304,
+    csi1=0.001,
+    csi2=0.001,
+    omega1=1e2,
+    omega2=2e2)
+             annotation (Placement(transformation(extent={{34,20},{54,40}},
           rotation=0)));
   Modelica.Mechanics.MultiBody.Joints.RevolutePlanarLoopConstraint
                                                revolute2
@@ -50,7 +55,12 @@ model SliderCrank
     A=7.854*1e-5,
     E=1e9,
     J=4.909*1e-10,
-    N=3) annotation (Placement(transformation(extent={{-38,20},{-18,40}},
+    N=3,
+    csi1=0.001,
+    csi2=0.001,
+    omega1=5e2,
+    omega2=10e2)
+         annotation (Placement(transformation(extent={{-38,20},{-18,40}},
           rotation=0)));
   Modelica.Mechanics.MultiBody.Parts.FixedRotation fixedRotation1(
     n={0,0,1},
@@ -132,7 +142,10 @@ equation
                                                 color={0,0,127}));
   annotation (Diagram(coordinateSystem(extent={{-140,-100},{100,100}})),
     Icon(coordinateSystem(extent={{-100,-100},{100,100}})),
-    experiment(StopTime=1.6, __Dymola_NumberOfIntervals=1000),
+    experiment(
+      StopTime=1.6,
+      Interval=4e-4,
+      __Dymola_Algorithm="Radau"),
     Documentation(info="<html>
 <p>This model replicates the test case presented in [1]. The connecting rod has the same cross-section
 and density of the crank, but it is assumed to be 20 times less stiff, while the slider block is
@@ -146,6 +159,12 @@ with a negative exponential time law.</p>
 <p><code>sliderPosition.y</code> and <code>rodMidpointDeformation.y</code> reproduce the results shown in
 Fig. 7 and 9 of [1], that were obtained with a different finite element multibody code, thus confirming
 the correctness of the flexible beam model.</p>
+
+<p>Due to the presence of very high-frequency poorly damped oscillation modes, BDF integrations algorithms
+such as DASSL or IDA are not recommended for the simulation, as the solution is subject to numerical
+oscillations and hence very inefficient. Simulation using RADAU turns out to be much faster, due to the fact
+that the stability boundary of that algorithm is closer to the imaginary axis for a much wider range of frequencies,
+given the time step length.</p>
 
 <h3>References</h3>
 <p>
