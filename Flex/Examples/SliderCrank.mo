@@ -3,7 +3,7 @@ model SliderCrank
   Modelica.Blocks.Sources.RealExpression rodMidpointDeformation(y=-rod.r0shape[
         4, 2]) annotation (Placement(transformation(extent={{-14,54},{14,66}})));
   Modelica.Blocks.Sources.RealExpression sliderPosition(y=slider.frame_a.r_0[1])
-    annotation (Placement(transformation(extent={{-16,68},{12,82}})));
+    annotation (Placement(transformation(extent={{-14,66},{14,80}})));
   inner Modelica.Mechanics.MultiBody.World world(g=0, enableAnimation=true,
     animateWorld=false,
     animateGravity=false)
@@ -19,28 +19,29 @@ model SliderCrank
         extent={{-10,-10},{10,10}},
         rotation=90)));
   Modelica.Mechanics.MultiBody.Joints.Prismatic prismatic2(
-    stateSelect=StateSelect.prefer,
     s(start=0),
     animation=false,
     n={-1,0,0}) annotation (Placement(transformation(extent={{-10,-32},{10,-12}},
           rotation=0)));
   Modelica.Mechanics.Rotational.Sources.Torque torqueGenerator(useSupport=false)
     annotation (Placement(transformation(extent={{-84,-6},{-64,14}}, rotation=0)));
-  Modelica.Mechanics.MultiBody.Joints.Revolute revolute1(stateSelect=
-        StateSelect.avoid)
+  Modelica.Mechanics.MultiBody.Joints.Revolute revolute1(phi(fixed=true), w(
+        fixed=true))
     annotation (Placement(transformation(extent={{-6,20},{14,40}}, rotation=0)));
   Flex.FlexibleThinBeam rod(
     rho=2770,
+    clampedFree=false,
     A=7.854*1e-5,
     J=4.909*1e-10,
-    ClampedFree=false,
     E=5e7,
     N=8,
     L=0.304,
     csi1=0.001,
     csi2=0.001,
     omega1=1e2,
-    omega2=2e2)
+    omega2=2e2,
+    qf(fixed=true),
+    dqf(fixed=true))
              annotation (Placement(transformation(extent={{34,20},{54,40}},
           rotation=0)));
   Modelica.Mechanics.MultiBody.Joints.RevolutePlanarLoopConstraint
@@ -59,7 +60,9 @@ model SliderCrank
     csi1=0.001,
     csi2=0.001,
     omega1=5e2,
-    omega2=10e2)
+    omega2=10e2,
+    qf(fixed=true),
+    dqf(fixed=true))
          annotation (Placement(transformation(extent={{-38,20},{-18,40}},
           rotation=0)));
   Modelica.Mechanics.MultiBody.Parts.FixedRotation fixedRotation1(

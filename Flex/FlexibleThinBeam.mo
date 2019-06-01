@@ -7,27 +7,15 @@ model FlexibleThinBeam "Flexible thin beam model"
   parameter SI.Density rho=7800 "Material density";
   parameter SI.Length L "Beam length";
 
-  parameter SI.Position r_0_start[3]={0,0,0}
-    "Initial values of frame_a.r_0 (vector from origin of world frame to origin of frame_a resolved in world frame)"
-    annotation (Dialog(tab="Initialization"));
-  parameter Real qf_start[3*N]=zeros(3*N)
-    "Initial beam deformation"
-    annotation(Dialog(tab="Initialization"));
-  parameter Real dqf_start[3*N]=zeros(3*N)
-    "Initial velocity of beam deformation"
-    annotation(Dialog(tab="Initialization"));
-  parameter Real ddqf_start[3*N]=zeros(3*N)
-    "Initial acceleration of beam deformation"
-    annotation(Dialog(tab="Initialization"));
-  parameter Boolean ClampedFree=true
+  parameter Boolean clampedFree=true
     "Clamped-Free model if true, else simply-supported model"
-    annotation(Dialog(tab="Boundary Conditions"));
-  parameter Boolean CircularSection=true
+    annotation(Dialog(group="Boundary Conditions"));
+  parameter Boolean circularSection=true
     "CircularSection if true, else Rectangular"
-    annotation(Dialog(tab="3D Graphics"));
-  parameter Modelica.Mechanics.MultiBody.Types.Color ColorBeam={128,128,128}
+    annotation(Dialog(group="3D Graphics"));
+  parameter Modelica.Mechanics.MultiBody.Types.Color beamColor={128,128,128}
     "Beam color "
-    annotation(Dialog(tab="3D Graphics"));
+    annotation(Dialog(group="3D Graphics"));
   parameter SI.Area A "Cross sectional area";
   parameter SI.ModulusOfElasticity E "Young modulus of the beam material";
   parameter SI.SecondMomentOfArea J "Second moment of area of cross section around z-axis";
@@ -120,9 +108,12 @@ protected
   type vec3D = SI.Position[3];
 
 public
-  Real qf[3*N](start=qf_start) "Elastic coordinates";
-  Real dqf[3*N](start=dqf_start) "Elastic velocities";
-  Real ddqf[3*N](start=ddqf_start) "Elastic accelerations";
+  Real qf[3*N](start = zeros(3*N)) "Elastic coordinates"
+    annotation (Dialog(tab="Initialization",showStartAttribute=true));
+  Real dqf[3*N](start = zeros(3*N)) "Elastic velocities"
+    annotation (Dialog(tab="Initialization",showStartAttribute=true));
+  Real ddqf[3*N](start = zeros(3*N)) "Elastic accelerations"
+    annotation (Dialog(tab="Initialization",showStartAttribute=true));
   SI.Acceleration g_0[3] "Gravity acceleration resolved in world frame";
 
   /* 3D graphics variables */
@@ -187,12 +178,12 @@ protected
   Modelica.Mechanics.MultiBody.Visualizers.Advanced.Shape Segment[N](
     r_shape=r0shape,
     length=Lshape,
-    each width=if CircularSection then 2*sqrt(A/pi) else A/(0.4*sqrt(A)),
-    each height=if CircularSection then 2*sqrt(A/pi) else (0.4*sqrt(A)),
+    each width=if circularSection then 2*sqrt(A/pi) else A/(0.4*sqrt(A)),
+    each height=if circularSection then 2*sqrt(A/pi) else (0.4*sqrt(A)),
     lengthDirection=rrelshape,
     each widthDirection={0,0,1},
-    each shapeType=if CircularSection then "cylinder" else "box",
-    each color=ColorBeam,
+    each shapeType=if circularSection then "cylinder" else "box",
+    each color=beamColor,
     each extra=0.0,
     each r=frame_a.r_0,
     each R=frame_a.R);
@@ -206,7 +197,7 @@ equation
   assert(cardinality(frame_a) > 0 or cardinality(frame_b) > 0, "Neither connector frame_a nor frame_b of FlexBeamFem object is connected");
 
   //connectivity matrices
-  if ClampedFree then
+  if clampedFree then
     B[1,:,:] = [zeros(3, 3*N); identity(3), zeros(3, 3*(N - 1))];
     B[N,:,:] = [zeros(6, 3*(N - 2)), identity(6)];
   else
