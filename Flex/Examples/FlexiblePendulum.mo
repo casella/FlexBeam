@@ -22,7 +22,7 @@ equation
       points={{-28,6},{-44,6}},
       color={0,0,0},
       thickness=0.5));
-  connect(Revolute2.frame_b, FEMPendulum.FrameA) annotation (Line(
+  connect(Revolute2.frame_b, FEMPendulum.frame_a) annotation (Line(
       points={{-8,6},{-1.7,6},{-1.7,6.1},{0.6,6.1}},
       color={0,0,0},
       thickness=0.5));

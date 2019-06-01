@@ -138,19 +138,19 @@ equation
       thickness=0.5));
   connect(actuator.flange, ActuatedPrismatic.axis)
     annotation (Line(points={{-22,-52},{-14,-52},{-14,-70}}, color={0,191,0}));
-  connect(Beam3.FrameB, Body1.frame_a) annotation (Line(
+  connect(Beam3.frame_b, Body1.frame_a) annotation (Line(
       points={{15.9,91.7},{15.9,94.2},{16,94.2},{16,98}},
       color={0,0,0},
       thickness=0.5));
-  connect(Beam2.FrameB, Beam3.FrameA) annotation (Line(
+  connect(Beam2.frame_b, Beam3.frame_a) annotation (Line(
       points={{15.9,63.7},{15.9,72.3}},
       color={0,0,0},
       thickness=0.5));
-  connect(Beam1.FrameB, Beam2.FrameA) annotation (Line(
+  connect(Beam1.frame_b, Beam2.frame_a) annotation (Line(
       points={{15.9,35.7},{15.9,44.3}},
       color={0,0,0},
       thickness=0.5));
-  connect(FixedRotation1.frame_b, Beam1.FrameA) annotation (Line(
+  connect(FixedRotation1.frame_b, Beam1.frame_a) annotation (Line(
       points={{16,6},{16,16.3},{15.9,16.3}},
       color={0,0,0},
       thickness=0.5));

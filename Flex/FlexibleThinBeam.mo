@@ -166,12 +166,12 @@ protected
   Real Lshape[N];
 
 public
-  Modelica.Mechanics.MultiBody.Interfaces.Frame_a FrameA annotation (Placement(transformation(
-          extent={{-106,-8},{-86,12}}, rotation=0), iconTransformation(extent={{
-            -108,-10},{-86,12}})));
-  Modelica.Mechanics.MultiBody.Interfaces.Frame_b FrameB annotation (Placement(transformation(
-          extent={{88,-8},{108,12}}, rotation=0), iconTransformation(extent={{86,
-            -10},{108,12}})));
+  Modelica.Mechanics.MultiBody.Interfaces.Frame_a frame_a annotation (Placement(
+        transformation(extent={{-106,-8},{-86,12}}, rotation=0),
+        iconTransformation(extent={{-108,-10},{-86,12}})));
+  Modelica.Mechanics.MultiBody.Interfaces.Frame_b frame_b annotation (Placement(
+        transformation(extent={{88,-8},{108,12}}, rotation=0),
+        iconTransformation(extent={{86,-10},{108,12}})));
 
 protected
   Modelica.Mechanics.MultiBody.Frames.Orientation R_rel;
@@ -186,12 +186,12 @@ protected
     each shapeType=if CircularSection then "cylinder" else "box",
     each color=ColorBeam,
     each extra=0.0,
-    each r=FrameA.r_0,
-    each R=FrameA.R);
+    each r=frame_a.r_0,
+    each R=frame_a.R);
 
 equation
-  Connections.branch(FrameA.R, FrameB.R);
-  assert(cardinality(FrameA) > 0 or cardinality(FrameB) > 0,
+  Connections.branch(frame_a.R, frame_b.R);
+  assert(cardinality(frame_a) > 0 or cardinality(frame_b) > 0,
     "Neither connector frame_a nor frame_b of FlexBeamFem object is connected");
 
   //connectivity matrices
@@ -262,16 +262,17 @@ equation
   Kff = sum(transpose(B[i,:,:])*(KffEl)*B[i,:,:] for i in 1:N);
 
   /* Flange A quantities definitions */
-  g_0 = Frames.resolve2(FrameA.R, world.gravityAcceleration(FrameA.r_0 + Frames.resolve1(FrameA.R, {L/2,0,0})));
+  g_0 =Frames.resolve2(frame_a.R, world.gravityAcceleration(frame_a.r_0 +
+    Frames.resolve1(frame_a.R, {L/2,0,0})));
 
-  ra = FrameA.r_0;
-  va = Frames.resolve2(FrameA.R, der(FrameA.r_0));
-  wa = Frames.angularVelocity2(FrameA.R);
+  ra =frame_a.r_0;
+  va =Frames.resolve2(frame_a.R, der(frame_a.r_0));
+  wa =Frames.angularVelocity2(frame_a.R);
   v_0a = der(ra);
-  aa = Frames.resolve2(FrameA.R, der(v_0a));
+  aa =Frames.resolve2(frame_a.R, der(v_0a));
   za = der(wa);
-  fa = FrameA.f;
-  ta = FrameA.t;
+  fa =frame_a.f;
+  ta =frame_a.t;
 
   /* Time-variant quantities */
   dqf = der(qf);
@@ -310,13 +311,13 @@ equation
     Qvf + Qef - matrix(Kff*qf) - matrix((alpha*mff + beta*Kff)*dqf);
 
   /* Flange B quantities definitions */
-  rb = FrameB.r_0;
-  fb = FrameB.f;
-  tb = FrameB.t;
+  rb =frame_b.r_0;
+  fb =frame_b.f;
+  tb =frame_b.t;
   fb_a = Frames.resolve1(R_rel, fb);
   tb_a = Frames.resolve1(R_rel, tb);
-  rb = ra + Frames.resolve1(FrameA.R, ({L,0,0} + S1*B[N, :, :]*qf));
-  FrameB.R = Frames.absoluteRotation(FrameA.R, R_rel);
+  rb =ra + Frames.resolve1(frame_a.R, ({L,0,0} + S1*B[N, :, :]*qf));
+  frame_b.R = Frames.absoluteRotation(frame_a.R, R_rel);
   R_rel = Frames.planarRotation({0,0,1}, qf[3*N], dqf[3*N]);
 
   /* 3D Visual Representation */

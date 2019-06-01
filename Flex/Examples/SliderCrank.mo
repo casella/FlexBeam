@@ -85,15 +85,15 @@ equation
       points={{-46,-6},{-46,-22},{-64,-22}},
       color={0,0,0},
       thickness=0.5));
-  connect(crank.FrameB, revolute1.frame_a) annotation (Line(
+  connect(crank.frame_b, revolute1.frame_a) annotation (Line(
       points={{-18.3,30.1},{-14,30.1},{-14,30},{-6,30}},
       color={0,0,0},
       thickness=0.5));
-  connect(crank.FrameA, actuatedRevolute.frame_b) annotation (Line(
+  connect(crank.frame_a, actuatedRevolute.frame_b) annotation (Line(
       points={{-37.7,30.1},{-46,30.1},{-46,14}},
       color={0,0,0},
       thickness=0.5));
-  connect(revolute1.frame_b, rod.FrameA) annotation (Line(
+  connect(revolute1.frame_b, rod.frame_a) annotation (Line(
       points={{14,30},{24.3,30},{24.3,30.1},{34.3,30.1}},
       color={0,0,0},
       thickness=0.5));
@@ -113,7 +113,7 @@ equation
       points={{56,-22},{78,-22},{78,-4}},
       color={0,0,0},
       thickness=0.5));
-  connect(fixedRotation1.frame_b, rod.FrameB) annotation (Line(
+  connect(fixedRotation1.frame_b, rod.frame_b) annotation (Line(
       points={{78,16},{78,30.1},{53.7,30.1}},
       color={0,0,0},
       thickness=0.5));
