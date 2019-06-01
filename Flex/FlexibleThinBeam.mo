@@ -116,8 +116,14 @@ public
   Real ddqf[3*N](start=ddqf_start) "Elastic accelerations";
   SI.Acceleration g_0[3] "Gravity acceleration resolved in world frame";
 
+  /* 3D graphics variables */
+  type vec3D = SI.Position[3];
+  vec3D r0shape[N] "Position of left boundary of finite elements resolved in frame_a";
+  vec3D rrelshape[N] "Left boundary position - Right boundary position vector resolved in frame_a";
+  Real Lshape[N] "Length of each finite volume";
+
 protected
-  Real B[N, 6, 3*N];
+  Real B[N,6,3*N];
   Real Stbar[3];
   Real StbarCross[3, 3];
   Real Ithth_bar[3, 3];
@@ -159,17 +165,11 @@ protected
   Real fb_a[3];
   Real tb_a[3];
 
-  /* 3D graphics variables */
-  type vec3D = Real[3];
-  vec3D r0shape[N];
-  vec3D rrelshape[N];
-  Real Lshape[N];
-
 public
-  Modelica.Mechanics.MultiBody.Interfaces.Frame_a frame_a annotation (Placement(
+  Modelica.Mechanics.MultiBody.Interfaces.Frame_a frame_a "Coordinate system fixed to the component with one cut-force and cut-torque" annotation (Placement(
         transformation(extent={{-106,-8},{-86,12}}, rotation=0),
         iconTransformation(extent={{-108,-10},{-86,12}})));
-  Modelica.Mechanics.MultiBody.Interfaces.Frame_b frame_b annotation (Placement(
+  Modelica.Mechanics.MultiBody.Interfaces.Frame_b frame_b "Coordinate system fixed to the component with one cut-force and cut-torque" annotation (Placement(
         transformation(extent={{88,-8},{108,12}}, rotation=0),
         iconTransformation(extent={{86,-10},{108,12}})));
 
@@ -191,8 +191,7 @@ protected
 
 equation
   Connections.branch(frame_a.R, frame_b.R);
-  assert(cardinality(frame_a) > 0 or cardinality(frame_b) > 0,
-    "Neither connector frame_a nor frame_b of FlexBeamFem object is connected");
+  assert(cardinality(frame_a) > 0 or cardinality(frame_b) > 0, "Neither connector frame_a nor frame_b of FlexBeamFem object is connected");
 
   //connectivity matrices
   if ClampedFree then
@@ -334,7 +333,6 @@ equation
     rrelshape[i, :] = (r0shape[i + 1, :] - r0shape[i, :]);
     Lshape[i] = sqrt(rrelshape[i, :]*rrelshape[i, :]);
   end for;
-
   annotation (
     Icon(graphics={
         Text(
