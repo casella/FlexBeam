@@ -370,8 +370,9 @@ frame <code>frame_a</code>, to which a small deformation described by the elasti
 shape functions, is superimposed. More specifically, the left boundary of the first element is rigidly attached to <code>frame_a</code>,
 and then the right boundary of each i-th element has a displacement in the x-direction proportional to <code>q[1+(i-1)*3]</code>,
 a displacement in the y-direction proportional to <code>q[(2+(i-1)*3]</code>, and a rotation around the z-axis proportional
-to <code>q[(3+(i-1)*3]</code>. The displacement of the right boundary of each element with respect to the rigid-body configuration,
-resolved in the frame_a reference, is available in the vector <code>r0shape</code>, and used for visualization.</p>
+to <code>q[(3+(i-1)*3]</code>.</p>
+<p>The position of the left boundary of each element, resolved in the <code>frame_a</code> reference, is computed in the vector 
+<code>r0shape</code>, which is also used for visualization.</p>
 <p>The shape of the basis functions that describe the beam deformation can be chosen between the clamped-free and the simply supported
 configuration. In general, it is possible to connect the two frame connectors at the beam boundary to any other rigid or flexible body connector;
 the dynamic behaviour due to flexibility will be better approximated by increasing the number of elements <code>N</code>. However,
