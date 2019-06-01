@@ -78,9 +78,8 @@ model SliderCrank
     color={255,255,255},
     animation=false) annotation (Placement(transformation(extent={{-28,-66},{-8,
             -46}}, rotation=0)));
-  Modelica.Blocks.Sources.RealExpression torque(y=if time < 0.7 then 0.01*(1 -
-        exp(-time/0.167)) else 0)
-    annotation (Placement(transformation(extent={{-122,-6},{-102,14}})));
+  Modelica.Blocks.Sources.RealExpression torque(y=0.01*(1 - exp(-time/0.167)))
+    annotation (Placement(transformation(extent={{-124,-6},{-102,14}})));
 equation
   connect(actuatedRevolute.frame_a, world.frame_b) annotation (Line(
       points={{-46,-6},{-46,-22},{-64,-22}},
@@ -129,7 +128,8 @@ equation
   connect(torqueGenerator.flange, actuatedRevolute.axis)
     annotation (Line(points={{-64,4},{-56,4}}, color={0,0,0}));
   connect(torque.y, torqueGenerator.tau)
-    annotation (Line(points={{-101,4},{-86,4}}, color={0,0,127}));
+    annotation (Line(points={{-100.9,4},{-86,4}},
+                                                color={0,0,127}));
   annotation (Diagram(coordinateSystem(extent={{-140,-100},{100,100}})),
     Icon(coordinateSystem(extent={{-100,-100},{100,100}})),
     experiment(StopTime=1.6, __Dymola_NumberOfIntervals=1000),
