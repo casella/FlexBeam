@@ -6,7 +6,7 @@ model FlexiblePendulum
   Modelica.Mechanics.MultiBody.Joints.Revolute revolute1(phi(fixed=true), w(
         fixed=true))                                     annotation (Placement(transformation(
           extent={{-28,-4},{-8,16}}, rotation=0)));
-  FlexibleThinBeam femPendulum(
+  FlexibleThinBeam flexiblePendulum(
     rho=5540,
     circularSection=false,
     A=0.0018,
@@ -17,7 +17,9 @@ model FlexiblePendulum
     omega1=0.01,
     omega2=100,
     L=0.4,
-    N=10)
+    N=10,
+    dqf(fixed=true),
+    ddqf(fixed=true))
     annotation (Placement(transformation(extent={{0,-4},{40,16}}, rotation=0)));
   Modelica.Mechanics.MultiBody.Joints.Revolute revolute2(phi(fixed=true), w(
         fixed=true))                                     annotation (Placement(transformation(
@@ -33,7 +35,7 @@ equation
       points={{-28,6},{-44,6}},
       color={0,0,0},
       thickness=0.5));
-  connect(revolute1.frame_b, femPendulum.frame_a) annotation (Line(
+  connect(revolute1.frame_b, flexiblePendulum.frame_a) annotation (Line(
       points={{-8,6},{-1.7,6},{-1.7,6.1},{0.6,6.1}},
       color={0,0,0},
       thickness=0.5));
