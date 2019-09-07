@@ -380,10 +380,17 @@ the dynamic behaviour due to flexibility will be better approximated by increasi
 an appropriate choice of the basis shape function allows to obtain a better approximation of the exact motion with a lower number of
 elements.</p>
 <p>The application of the FEM method to the Euler-Bernoulli PDEs allows to compute the mass and stiffness matrices of the model, which has
-no inherent damping. As a consequence, high-frequency vibration modes will be poorly damped, with eigenvalues very close to the imaginary
-axis. This can seriously slow down the simulation if variable step-size algorithms with error control are used, particularly if
-methods such as BDF algorithms (e.g. DASSL, IDA) are used, whose stability boundary poorly matches the imaginary axis.</p>
-<p>To avoid this problem, it may then be useful to introduce some structural damping in the model.
+no inherent damping. Some damping may be introduced by other components connected to the beam, though this is usually not enough to
+inject sufficient damping on high-frequency oscillation modes. The presence of high-frequency poorly damped or undamped modes can have a
+catastrophic effect on simulation time when variable step-size algorithms with error control are used, because they may require a very high
+number of simulation steps to follow the fast undamped oscillations with the required accuracy. This unwanted phenomenon can be avoided
+by means of two strategies.</p>
+<p>The first strategy is to employ integration algorithms which are A-stable, or at least such that the stability boundary remains parallel
+to the imaginary axis for the widest possible frequency range. This ensures that poorly damped modes are not further undamped by the
+integration algoritm, ensuring that their oscillations die out after a short enough transients. Implicit Runge-Kutta algorithms such as Radau II
+are thus recommended, while BDF algorithms such as DASSL or IDA may not work well, because of their a marked tendency to destabilize
+poorly damped modes at frequencies between one and 15 times the inverse of the time step.</p>
+<p>The second strategy is to introduce some structural damping in the model.
 Unfortunately, this can only be done empirically, by fitting the damping coefficient of some vibration modes of the system. The flexible
 beam model allows to do so using Rayleigh damping, whereby the damping matrix is a linear combination of the mass and stiffness matrices
 with coefficients <code>alpha</code> and <code>beta</code>. The coefficients are computed to obtain the desired damping coefficients 
