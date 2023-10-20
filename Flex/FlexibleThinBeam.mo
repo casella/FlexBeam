@@ -4,8 +4,8 @@ model FlexibleThinBeam "Flexible thin beam model"
   import Cv = Modelica.Units.Conversions;
   import Modelica.Mechanics.MultiBody.Frames;
 
-  parameter SI.Density rho=7800 "Material density";
-  parameter SI.Length L "Beam length";
+  parameter SI.Density rho=7800 "Material density" annotation(Evaluate = true);
+  parameter SI.Length L "Beam length" annotation(Evaluate = true);
 
   parameter Boolean clampedFree=true
     "Clamped-Free model if true, else simply-supported model"
@@ -16,9 +16,9 @@ model FlexibleThinBeam "Flexible thin beam model"
   parameter Modelica.Mechanics.MultiBody.Types.Color beamColor={128,128,128}
     "Beam color "
     annotation(Dialog(group="3D Graphics"));
-  parameter SI.Area A "Cross sectional area";
-  parameter SI.ModulusOfElasticity E "Young modulus of the beam material";
-  parameter SI.SecondMomentOfArea J "Second moment of area of cross section around z-axis";
+  parameter SI.Area A "Cross sectional area" annotation(Evaluate = true);
+  parameter SI.ModulusOfElasticity E "Young modulus of the beam material" annotation(Evaluate = true) ;
+  parameter SI.SecondMomentOfArea J "Second moment of area of cross section around z-axis"  annotation (Evaluate = true);
   parameter Integer N(min=1) = 5 "Number of elements";
   parameter SI.PerUnit csi1 = 0 "Desired damping coefficient at frequency omega1"
     annotation(Dialog(group="Damping"));
