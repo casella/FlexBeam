@@ -1,8 +1,8 @@
 within Flex.Examples;
 model CartFlexibleBeam
- parameter Modelica.SIunits.Length L=2;
+  parameter Modelica.Units.SI.Length L=2;
   parameter Real lato=0.01;
-  parameter Modelica.SIunits.Area A=lato^2;
+  parameter Modelica.Units.SI.Area A=lato^2;
   parameter Real E=2.1e11;
   parameter Real J=lato^4/12;
   parameter Integer N=4 "number of elements";
@@ -17,10 +17,10 @@ model CartFlexibleBeam
     J=J,
     N=N,
     qf_start=zeros(3*N),
-    ColorBeam={128,128,128},
+    beamColor={128,128,128},
     L=L/3,
-    Alpha=0.05,
-    Beta=5e-4) annotation (Placement(transformation(
+    alpha=0.05,
+    beta=5e-4) annotation (Placement(transformation(
         origin={16,54},
         extent={{-10,-10},{10,10}},
         rotation=90)));
@@ -36,16 +36,14 @@ model CartFlexibleBeam
     N=N,
     qf_start=zeros(3*N),
     L=L/3,
-    Alpha=0.05,
-    Beta=5e-4) annotation (Placement(transformation(
+    alpha=0.05,
+    beta=5e-4) annotation (Placement(transformation(
         origin={16,82},
         extent={{-10,-10},{10,10}},
         rotation=90)));
-  Modelica.Mechanics.MultiBody.Joints.Prismatic ActuatedPrismatic(
-    useAxisFlange=true,
-    s_offset=0,
-    animation=false) annotation (Placement(transformation(extent={{-32,-86},{-12,
-            -66}}, rotation=0)));
+  Modelica.Mechanics.MultiBody.Joints.Prismatic ActuatedPrismatic(useAxisFlange
+      =true, animation=false) annotation (Placement(transformation(extent={{-32,
+            -86},{-12,-66}}, rotation=0)));
   Modelica.Mechanics.MultiBody.Parts.BodyBox cart(
     color={255,0,0},
     r={0.8,0,0},
@@ -64,7 +62,7 @@ model CartFlexibleBeam
         rotation=90)));
   Modelica.Mechanics.Translational.Sources.Position actuator annotation (
       Placement(transformation(extent={{-42,-62},{-22,-42}}, rotation=0)));
-  Modelica.Blocks.Sources.Sine sineSignal(offset=1, freqHz=0.5) annotation (
+  Modelica.Blocks.Sources.Sine sineSignal(offset=1, f=0.5) annotation (
       Placement(transformation(extent={{-88,-60},{-72,-44}}, rotation=0)));
   FlexibleThinBeam Beam1(
     A=A,
@@ -72,10 +70,10 @@ model CartFlexibleBeam
     J=J,
     N=N,
     qf_start=zeros(3*N),
-    ColorBeam={128,128,128},
+    beamColor={128,128,128},
     L=L/3,
-    Alpha=0.05,
-    Beta=5e-4) annotation (Placement(transformation(
+    alpha=0.05,
+    beta=5e-4) annotation (Placement(transformation(
         origin={16,26},
         extent={{-10,-10},{10,10}},
         rotation=90)));

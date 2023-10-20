@@ -1,7 +1,7 @@
 within Flex;
 model FlexibleThinBeam "Flexible thin beam model"
-  import SI = Modelica.SIunits;
-  import Cv = Modelica.SIunits.Conversions;
+  import      Modelica.Units.SI;
+  import Cv = Modelica.Units.Conversions;
   import Modelica.Mechanics.MultiBody.Frames;
 
   parameter SI.Density rho=7800 "Material density";
