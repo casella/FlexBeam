@@ -1,11 +1,11 @@
 within Flex.Examples;
 model CartFlexibleBeam
-  parameter Modelica.Units.SI.Length L=2;
-  parameter Real lato=0.01;
-  parameter Modelica.Units.SI.Area A=lato^2;
-  parameter Real E=2.1e11;
-  parameter Real J=lato^4/12;
-  parameter Integer N=4 "number of elements";
+  parameter Modelica.Units.SI.Length L = 2 "Lenght of beam segment";
+  parameter Modelica.Units.SI.Length w = 0.01 "Beam width";
+  parameter Modelica.Units.SI.Pressure E = 2.1e11 "Young's modulus of material";
+  parameter Integer N=3 "Number of finite elements for each beam segment";
+  final parameter Modelica.Units.SI.Area A = w^2 "Beam cross section area";
+  final parameter Real J(unit = "m4") = w^4/12 "Moment of inertia of cross-section along both axes";
   inner Modelica.Mechanics.MultiBody.World world(
     enableAnimation=true,
     animateWorld=false,
